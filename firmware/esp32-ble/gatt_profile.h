@@ -11,4 +11,9 @@ namespace ssm {
 #define SSM_CHAR_COMMANDS_UUID        "a12f0004-4b8f-4c3d-9a12-7f1a2b3c4d5e"
 #define SSM_CHAR_STATUS_UUID         "a12f0005-4b8f-4c3d-9a12-7f1a2b3c4d5e"
 
+#define GATT_CHAR_VEHICLE_STATUS   0x01
+#define GATT_CHAR_HEALTH_SCORE     0x02
+#define GATT_CHAR_ALERT_EVENTS     0x03
+#define GATT_CHAR_ACTIVE_ALERTS    0x04
+
 }
