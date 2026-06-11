@@ -7,6 +7,7 @@
 #include "rule_engine.h"
 #include "anomaly_detector.h"
 #include "trend_analyzer.h"
+#include "correlation_engine.h"
 #include "alert_engine.h"
 #include "alerts.h"
 #include "alert_event_stream.h"
@@ -41,6 +42,7 @@ private:
     void processRules(const VehicleSnapshot& s, uint32_t now);
     void processTrends();
     void processAnomalies();
+    void processCorrelation(const VehicleSnapshot& s, uint32_t now);
     void updateAlerts(uint32_t now);
     void emitEvents();
 };

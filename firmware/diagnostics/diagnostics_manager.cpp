@@ -1,4 +1,6 @@
 #include "diagnostics_manager.h"
+#include "correlation_engine.h"
+#include <cstdio>
 
 namespace diagnostics {
 
@@ -32,6 +34,7 @@ void DiagnosticsManager::tick(const obd::VehicleSnapshot& snap) {
     processTrends();
     processAnomalies();
     processRules(latest, now);
+    processCorrelation(latest, now);
     updateAlerts(now);
     emitEvents();
 
@@ -45,18 +48,59 @@ void DiagnosticsManager::processTrends() {
 
     // future expansion point:
     // TrendAnalyzer operates ONLY on ordered data
+    TrendAnalyzer::analyze(ordered, history.size());
 }
 
 void DiagnosticsManager::processAnomalies() {
 
-    // instantaneous checks (no history dependency)
-
     if (AnomalyDetector::coolantOverheat(latest.coolantTemp)) {
-        // handled in rules layer
+        Alert alert;
+        if (RuleEngine::evaluateCooling(latest, alert)) {
+            alert.id = makeId(latest, alert.type);
+            alert.firstSeen = latest.timestamp;
+            alert.lastSeen = latest.timestamp;
+            alertManager.raise(alert);
+        }
     }
 
     if (AnomalyDetector::rpmOutlier(latest.rpm)) {
-        // handled in rules layer
+        Alert alert;
+        if (RuleEngine::evaluateEngine(latest, alert)) {
+            alert.id = makeId(latest, alert.type);
+            alert.firstSeen = latest.timestamp;
+            alert.lastSeen = latest.timestamp;
+            alertManager.raise(alert);
+        }
+    }
+}
+
+void DiagnosticsManager::processCorrelation(
+    const VehicleSnapshot& s,
+    uint32_t now
+) {
+    VehicleSnapshot ordered[HistoryBuffer::SIZE];
+    history.toOrdered(ordered);
+
+    auto result = CorrelationEngine::analyze(s, ordered, history.size());
+
+    if (result.cause != RootCause::NONE) {
+        Alert alert;
+        alert.type = AlertType::ENGINE;
+        alert.severity = AlertSeverity::HIGH;
+        alert.state = AlertState::NEW;
+        alert.firstSeen = now;
+        alert.lastSeen = now;
+
+        snprintf(alert.message, MAX_ALERT_MESSAGE_LENGTH,
+            "Correlated %u with confidence %u",
+            (uint8_t)result.cause, result.confidence);
+
+        if (result.severityBoost >= 20) {
+            alert.severity = AlertSeverity::CRITICAL;
+        }
+
+        alert.id = makeId(s, alert.type);
+        alertManager.raise(alert);
     }
 }
 
