@@ -245,39 +245,6 @@ Estimated failure window:
 2-4 weeks.
 ```
 
-# Backend Deliverables
-
-## Vehicle Profile Engine
-
-Each car gets:
-
-```json
-{
-  "vehicle_id": "...",
-  "normal_rpm_idle": 720,
-  "normal_voltage": 13.8,
-  "coolant_profile": {},
-  "fuel_profile": {}
-}
-```
-
-This becomes the baseline.
-
-## Telemetry Pipeline
-
-```text
-BLE
- ↓
-Phone
- ↓
-API
- ↓
-Timeseries DB
- ↓
-ML
-```
-
-
 # Machine Learning Deliverables
 
 Phase 1:
