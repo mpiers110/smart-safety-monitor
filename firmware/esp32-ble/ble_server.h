@@ -65,6 +65,7 @@ public:
     void sendLiveData(const uint8_t* data, size_t len);
     void sendDiagnostics(const uint8_t* data, size_t len);
     void sendStatus(const uint8_t* data, size_t len);
+    void sendActiveAlerts(const uint8_t* data, size_t len);
 
     bool isConnected() const;
 
@@ -94,6 +95,7 @@ private:
     BLECharacteristic* diagnosticsChar;
     BLECharacteristic* commandChar;
     BLECharacteristic* statusChar;
+    BLECharacteristic* alertsChar;
 
     bool deviceConnected;
     BLEServerEvents* eventHandler;

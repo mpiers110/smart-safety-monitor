@@ -52,6 +52,12 @@ void BLEServerManager::setupCharacteristics() {
     );
     statusChar->addDescriptor(new BLE2902());
 
+    alertsChar = service->createCharacteristic(
+        SSM_CHAR_ALERTS_UUID,
+        BLECharacteristic::PROPERTY_NOTIFY
+    );
+    alertsChar->addDescriptor(new BLE2902());
+
     commandChar = service->createCharacteristic(
         SSM_CHAR_COMMANDS_UUID,
         BLECharacteristic::PROPERTY_WRITE
@@ -86,6 +92,12 @@ void BLEServerManager::sendStatus(const uint8_t* data, size_t len) {
     if (!deviceConnected) return;
     statusChar->setValue(data, len);
     statusChar->notify();
+}
+
+void BLEServerManager::sendActiveAlerts(const uint8_t* data, size_t len) {
+    if (!deviceConnected) return;
+    alertsChar->setValue(data, len);
+    alertsChar->notify();
 }
 
 bool BLEServerManager::isConnected() const {

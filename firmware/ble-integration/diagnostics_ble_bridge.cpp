@@ -29,7 +29,13 @@ void DiagnosticsBLEBridge::tick() {
         lastHealthPush = now;
     }
 
-    // 3. alerts (event-driven but polled safely)
+    // 3. active alert state sync (2Hz)
+    if (now - lastAlertStatePush > 500) {
+        pushActiveAlerts();
+        lastAlertStatePush = now;
+    }
+
+    // 4. alerts events (event-driven but polled safely)
     pushAlerts();
 }
 
@@ -71,6 +77,34 @@ void DiagnosticsBLEBridge::pushAlerts() {
     }
 
     server->sendDiagnostics(packet, idx);
+}
+
+void DiagnosticsBLEBridge::pushActiveAlerts() {
+    const auto& alerts = diag->getAlertManager();
+    const Alert* alertList = alerts.getAll();
+    uint8_t count = alerts.count();
+
+    if (count == 0) return;
+
+    uint8_t packet[32];
+    uint8_t idx = 0;
+
+    packet[idx++] = count;
+
+    for (uint8_t i = 0; i < count && idx + 7 <= sizeof(packet); i++) {
+        const Alert& alert = alertList[i];
+        if (alert.state == AlertState::CLEARED) continue;
+
+        packet[idx++] = static_cast<uint8_t>(alert.type);
+        packet[idx++] = static_cast<uint8_t>(alert.severity);
+        packet[idx++] = static_cast<uint8_t>(alert.state);
+        packet[idx++] = (uint8_t)(alert.id >> 24);
+        packet[idx++] = (uint8_t)(alert.id >> 16);
+        packet[idx++] = (uint8_t)(alert.id >> 8);
+        packet[idx++] = (uint8_t)(alert.id & 0xFF);
+    }
+
+    server->sendActiveAlerts(packet, idx);
 }
 
 }

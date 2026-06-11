@@ -22,6 +22,7 @@ private:
 
     uint32_t lastSnapshotPush = 0;
     uint32_t lastHealthPush = 0;
+    uint32_t lastAlertStatePush = 0;
 
     void pushSnapshot();
     void pushHealth();
