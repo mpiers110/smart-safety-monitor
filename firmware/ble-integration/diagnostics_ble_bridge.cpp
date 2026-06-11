@@ -3,13 +3,17 @@
 
 namespace ble {
 
-void DiagnosticsBLEBridge::begin(diagnostics::DiagnosticsManager* dm) {
+void DiagnosticsBLEBridge::begin(
+    diagnostics::DiagnosticsManager* dm,
+    ssm::BLEServerManager* server
+) {
     diag = dm;
+    this->server = server;
 }
 
 void DiagnosticsBLEBridge::tick() {
 
-    if (!diag) return;
+    if (!diag || !server) return;
 
     uint32_t now = millis();
 
@@ -31,40 +35,22 @@ void DiagnosticsBLEBridge::tick() {
 
 void DiagnosticsBLEBridge::pushSnapshot() {
 
-    auto alerts = diag->getAlertManager();
-
-    // We assume BLE profile exists in esp32-ble stack:
-    // Vehicle Status characteristic
-
     auto score = diag->getHealthScore();
-
-    // compact payload (NO JSON, embedded-safe)
-    uint8_t packet[12];
-
-    // [0-3] health score + padding
+    uint8_t packet[2];
     packet[0] = score;
+    packet[1] = score > 75 ? 0 : 1;
 
-    // BLE send via existing server
-    BLEServer_sendCharacteristic(
-        GATT_CHAR_VEHICLE_STATUS,
-        packet,
-        sizeof(packet)
-    );
+    server->sendLiveData(packet, sizeof(packet));
 }
 
 void DiagnosticsBLEBridge::pushHealth() {
 
     uint8_t score = diag->getHealthScore();
-
     uint8_t payload[2];
     payload[0] = score;
     payload[1] = score > 75 ? 0 : 1;
 
-    BLEServer_sendCharacteristic(
-        GATT_CHAR_HEALTH_SCORE,
-        payload,
-        sizeof(payload)
-    );
+    server->sendStatus(payload, sizeof(payload));
 }
 
 void DiagnosticsBLEBridge::pushAlerts() {
@@ -84,11 +70,7 @@ void DiagnosticsBLEBridge::pushAlerts() {
         packet[idx++] = (uint8_t)events[i].state;
     }
 
-    BLEServer_sendCharacteristic(
-        GATT_CHAR_ALERT_EVENTS,
-        packet,
-        idx
-    );
+    server->sendDiagnostics(packet, idx);
 }
 
 }
