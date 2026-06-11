@@ -219,6 +219,29 @@ The firmware is partially implemented and now includes:
 * Correlation engine integrated into diagnostics for root-cause inference
 * PlatformIO build configuration at `platformio.ini`
 
+### How to build the ESP32 firmware
+
+1. Install PlatformIO and the ESP32 Arduino platform.
+2. From the repository root run:
+
+```bash
+platformio run -e esp32s3
+```
+
+3. To upload to a connected ESP32-S3 dev kit:
+
+```bash
+platformio run -e esp32s3 -t upload
+```
+
+4. To monitor serial output:
+
+```bash
+platformio device monitor -e esp32s3
+```
+
+> Note: this build configuration targets an ESP32-S3 dev kit and uses `115200` baud for serial monitoring.
+
 Remaining work:
 
 * full BLE command response payload validation and mobile app contract
