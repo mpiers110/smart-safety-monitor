@@ -6,11 +6,13 @@ namespace obd {
 void OBDManager::begin() {}
 
 void OBDManager::update() {
-    snapshot.rpm         = readRPM();
-    snapshot.speed       = readSpeed();
+    snapshot.timestamp = millis();
+    snapshot.rpm = readRPM();
+    snapshot.speed = readSpeed();
     snapshot.coolantTemp = readCoolantTemp();
-    snapshot.voltage     = readVoltage();
-    snapshot.fuelTrim    = readFuelTrim();
+    snapshot.voltageMv = readVoltage();
+    snapshot.fuelTrim = readFuelTrim();
+    
 }
 
 VehicleSnapshot OBDManager::getSnapshot() const {

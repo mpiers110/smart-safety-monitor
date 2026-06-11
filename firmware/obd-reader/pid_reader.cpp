@@ -59,11 +59,12 @@ uint16_t readPID(uint8_t pid) {
             return A - 40;
 
         case VOLTAGE:
-            return (A * 256 + B) / 1000;
+            return (A * 256) + B;
 
         case FUEL_TRIM:
-            return A - 128;
-
+            return static_cast<int16_t>(
+                ((100.0f / 128.0f) * A) - 100.0f
+            );
         default:
             return A;
     }
