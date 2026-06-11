@@ -82,13 +82,6 @@ smart-safety-monitor/
 │   ├── dashboards
 │   └── notifications
 │
-├── backend/
-│   ├── api
-│   ├── auth
-│   ├── telemetry
-│   ├── vehicle-profile
-│   └── alerts
-│
 ├── ml/
 │   ├── feature-engineering
 │   ├── anomaly-detection
