@@ -208,6 +208,23 @@ No LLM on device.
 
 The ESP32 only preprocesses.
 
+## Current Firmware Status
+
+The firmware is partially implemented and now includes:
+
+* ESP32 runtime entrypoint with `setup()` / `loop()`
+* BLE GATT service and notification characteristics for live data, status, diagnostics, and alerts
+* Active alert state sync over BLE
+* OBD-II data capture path with PID polling, DTC read/clear support, and OBD interface initialization
+* Correlation engine integrated into diagnostics for root-cause inference
+* PlatformIO build configuration at `platformio.ini`
+
+Remaining work:
+
+* full BLE command response payload validation and mobile app contract
+* expanded diagnostics rule coverage and trend analysis
+* firmware testing on real ESP32 hardware
+
 # Mobile App Deliverables
 
 ## Dashboard
